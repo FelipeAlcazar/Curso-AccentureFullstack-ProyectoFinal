@@ -38,7 +38,9 @@ public class EventoServiceImpl implements EventoService {
 
     @Override
     public void deleteEvento(Long id) {
-        eventoRepository.deleteById(id);
+        if (id != null) {
+            eventoRepository.deleteById(id);
+        }
     }
 
 }
