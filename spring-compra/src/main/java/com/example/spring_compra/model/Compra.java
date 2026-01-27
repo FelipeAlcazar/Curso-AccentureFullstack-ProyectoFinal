@@ -20,6 +20,8 @@ public class Compra {
     private Long id;
 
     private String email;
+    private Double precio;
+    private String fechaCompra;
     
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "tarjeta_id")
@@ -68,5 +70,21 @@ public class Compra {
 
     public void setEvento(CompraEventoResponse evento) {
         this.evento = evento;
+    }
+
+    public Double getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(Double precio) {
+        this.precio = precio;
+    }
+
+    public String getFechaCompra() {
+        return fechaCompra;
+    }
+
+    public void setFechaCompra(String fechaCompra) {
+        this.fechaCompra = fechaCompra;
     }
 }

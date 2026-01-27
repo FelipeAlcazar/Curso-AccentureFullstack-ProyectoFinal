@@ -8,15 +8,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.spring_compra.model.Compra;
-import com.example.spring_compra.model.Tarjeta;
-import com.example.spring_compra.repository.TarjetaRepository;
 import com.example.spring_compra.response.CompraResponse;
+import com.example.spring_compra.response.PasarelaPagoResponse;
 import com.example.spring_compra.service.CompraService;
 import org.springframework.http.HttpStatus;
+import com.example.spring_compra.dto.CompraDto;
 
 @RestController
 @RequestMapping("/compras")
@@ -41,18 +40,16 @@ public class CompraController {
     }
 
     @PostMapping
-    public ResponseEntity<CompraResponse> compraEntradas(
-            @RequestParam String email,
-            @RequestParam Long tarjetaId,
-            @RequestParam Long eventoId) {
+    public ResponseEntity<PasarelaPagoResponse> compraEntradas(@RequestBody CompraDto request) {
         try {
-            
-            Compra savedCompra = compraService.compraEntradas(email, tarjetaId, eventoId);
-            
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(CompraResponse.fromCompra(savedCompra, savedCompra.getEvento()));
+            PasarelaPagoResponse pago = compraService.compraEntradas(
+                request.getEmail(),
+                request.getTarjetaId(),
+                request.getEventoId()
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(pago);
         } catch (Exception e) {
-            throw new RuntimeException("Error al crear la compra: " + e.getMessage(), e);
+            throw new CompraException("Error al crear la compra: " + e.getMessage());
         }
     }
 }

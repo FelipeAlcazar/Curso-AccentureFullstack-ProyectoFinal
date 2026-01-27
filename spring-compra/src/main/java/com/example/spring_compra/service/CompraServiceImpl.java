@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.spring_compra.dto.PasarelaPagoDto;
 import com.example.spring_compra.response.PasarelaPagoResponse;
@@ -17,6 +17,7 @@ import com.example.spring_compra.repository.CompraRepository;
 import com.example.spring_compra.repository.TarjetaRepository;
 import com.example.spring_compra.response.CompraEventoResponse;
 import com.example.spring_compra.feignClients.PasarelaFeignClient;
+import org.springframework.http.HttpStatus;
 
 @Service
 public class CompraServiceImpl implements CompraService {
@@ -36,42 +37,43 @@ public class CompraServiceImpl implements CompraService {
     private static final String EMISOR = "EventTickets";
 
     @Override
-    public Compra compraEntradas(String email, Long tarjetaId, Long eventoId) {
-        var evento = eventoFeignClient.getEvento(eventoId);
-        var tarjeta = tarjetaRepository.findById(tarjetaId)
+    public PasarelaPagoResponse compraEntradas(String email, Long tarjetaId, Long eventoId) {
+        CompraEventoResponse evento = eventoFeignClient.getEvento(eventoId);
+        Tarjeta tarjeta = tarjetaRepository.findById(tarjetaId)
             .orElseThrow(() -> new RuntimeException("Tarjeta no encontrada"));
 
-        var dto = new PasarelaPagoDto();
-        dto.setNombreTitular(normalizeNombreTitular(tarjeta.getNombreTitular()));
-        dto.setNumeroTarjeta(tarjeta.getNumeroTarjeta());
-        dto.setMesCaducidad(tarjeta.getMesCaducidad());
-        dto.setYearCaducidad(tarjeta.getYearCaducidad());
-        dto.setCvv(tarjeta.getCvv());
-        dto.setEmisor(EMISOR);
-        dto.setConcepto("Compra de entrada: " + evento.getNombre());
-        dto.setCantidad(String.valueOf(generarPrecioAleatorio(evento.getPrecioMinimo(), evento.getPrecioMaximo())));
-
+        PasarelaPagoDto pasarelaPagoDto = new PasarelaPagoDto();
+        pasarelaPagoDto.setNombreTitular(normalizeNombreTitular(tarjeta.getNombreTitular()));
+        pasarelaPagoDto.setNumeroTarjeta(tarjeta.getNumeroTarjeta());
+        pasarelaPagoDto.setMesCaducidad(tarjeta.getMesCaducidad());
+        pasarelaPagoDto.setYearCaducidad(tarjeta.getYearCaducidad());
+        pasarelaPagoDto.setCvv(tarjeta.getCvv());
+        pasarelaPagoDto.setEmisor(EMISOR);
+        pasarelaPagoDto.setConcepto("Compra de entrada: " + evento.getNombre());
+        pasarelaPagoDto.setCantidad(String.valueOf(generarPrecioAleatorio(evento.getPrecioMinimo(), evento.getPrecioMaximo())));
+        
+        PasarelaPagoResponse response;
         try {
-            var response = pasarelaFeignClient.compra(dto);
-            
-            if (!response.isSuccess() && !isAcceptableError(response.getError())) {
-                throw new RuntimeException("Pago rechazado: " + response.getError());
-            }
-            
-            if (response.getMessage() != null) {
-                System.out.println("Pasarela: " + String.join("; ", response.getMessage()));
-            }
-            
+            response = pasarelaFeignClient.compra(pasarelaPagoDto);
         } catch (feign.FeignException e) {
-            System.err.println("Payment gateway error: " + e.status());
+            throw new ResponseStatusException(
+                HttpStatus.valueOf(e.status()),
+                e.contentUTF8(),
+                e
+            );
         }
 
-        var compra = new Compra();
+        Compra compra = new Compra();
         compra.setEmail(email);
         compra.setTarjeta(tarjeta);
         compra.setEventoId(eventoId);
         compra.setEvento(evento);
-        return compraRepository.save(compra);
+        compra.setPrecio(Double.valueOf(pasarelaPagoDto.getCantidad()));
+        compra.setFechaCompra(java.time.LocalDateTime.now()
+            .format(java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+        compraRepository.save(compra);
+
+        return response;
     }
 
     private String generarPrecioAleatorio(Double precioMinimo, Double precioMaximo) {
@@ -111,25 +113,10 @@ public class CompraServiceImpl implements CompraService {
             .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
             .replaceAll("\\s+", " ")
             .toUpperCase();
-        // must be 1–3 words, letters only
+
         if (!ascii.matches("^[A-Z]+( [A-Z]+){0,2}$")) {
             throw new IllegalArgumentException("NombreTitular inválido. Use 1–3 palabras en mayúsculas sin acentos.");
         }
         return ascii;
     }
-
-    private boolean isAcceptableError(String error) {
-        return error != null && (error.startsWith("400.0001") 
-            || error.startsWith("400.0002") 
-            || error.startsWith("500.0001"));
-    }
-
-    private PasarelaPagoResponse parseError(String raw) {
-        try {
-            return new com.fasterxml.jackson.databind.ObjectMapper().readValue(raw, PasarelaPagoResponse.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Error parsing pasarela response");
-        }
-    }
-
 }

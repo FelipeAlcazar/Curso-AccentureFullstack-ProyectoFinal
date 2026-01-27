@@ -8,6 +8,8 @@ public class CompraResponse {
     private String email;
     private Tarjeta tarjeta;
     private CompraEventoResponse evento;
+    private Double precio;
+    private String fechaCompra;
 
     public CompraResponse() {
     }
@@ -21,6 +23,8 @@ public class CompraResponse {
         response.setEmail(compra.getEmail());
         response.setTarjeta(compra.getTarjeta());
         response.setEvento(eventoDetails);
+        response.setPrecio(compra.getPrecio());
+        response.setFechaCompra(compra.getFechaCompra());
         return response;
     }
 
@@ -54,5 +58,21 @@ public class CompraResponse {
 
     public CompraEventoResponse getEvento() {
         return evento;
+    }
+
+    public Double getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(Double precio) {
+        this.precio = precio;
+    }
+
+    public String getFechaCompra() {
+        return fechaCompra;
+    }
+
+    public void setFechaCompra(String fechaCompra) {
+        this.fechaCompra = fechaCompra;
     }
 }
