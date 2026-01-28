@@ -1,0 +1,14 @@
+<h2>Lista de Eventos</h2>
+<ul>
+  @for (evento of eventos; track evento.id) {
+    <li>
+      <strong>{{ evento.nombre }}</strong><br>
+      {{ evento.descripcion }}<br>
+      Fecha: {{ evento.fechaEvento }} - Hora: {{ evento.horaEvento }}<br>
+      Precio: {{ evento.precioMinimo }}€ - {{ evento.precioMaximo }}€<br>
+      Localidad: {{ evento.localidad }}<br>
+      Género: {{ evento.genero }}<br>
+      Recinto: {{ evento.nombreRecinto }}
+    </li>
+  }
+</ul>
