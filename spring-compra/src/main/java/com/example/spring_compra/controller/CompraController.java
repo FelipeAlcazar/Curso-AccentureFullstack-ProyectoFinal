@@ -3,6 +3,7 @@ package com.example.spring_compra.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,12 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.spring_compra.dto.CompraDto;
 import com.example.spring_compra.model.Compra;
 import com.example.spring_compra.response.CompraResponse;
 import com.example.spring_compra.response.PasarelaPagoResponse;
 import com.example.spring_compra.service.CompraService;
-import org.springframework.http.HttpStatus;
-import com.example.spring_compra.dto.CompraDto;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -71,7 +71,14 @@ public class CompraController {
     }
 
     @ExceptionHandler(CompraException.class)
-    public ResponseEntity<String> handleCompraException(CompraException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    public ResponseEntity<PasarelaPagoResponse> handleCompraException(CompraException ex) {
+        PasarelaPagoResponse errorResponse = new PasarelaPagoResponse();
+        errorResponse.setStatus("400");
+        errorResponse.setError("CompraException");
+        errorResponse.setMessage(List.of(ex.getMessage()));
+        errorResponse.setInfo(ex.getInfo());
+        errorResponse.setInfoadicional(ex.getInfoAdicional());
+        errorResponse.setTimestamp(java.time.LocalDateTime.now().toString());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 }

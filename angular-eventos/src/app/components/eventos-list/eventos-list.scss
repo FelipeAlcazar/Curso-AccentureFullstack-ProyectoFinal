@@ -1,0 +1,99 @@
+
+
+$primary-color: #4f8cff;
+$accent-color: #ffb347;
+$background: #f7f9fb;
+$card-bg: #fff;
+$card-shadow: 0 4px 16px rgba(0,0,0,0.08);
+$border-radius: 16px;
+$transition: 0.3s cubic-bezier(0.4,0,0.2,1);
+$fecha-color: #ff6f61;
+$precio-color: #43a047;
+$localidad-color: #fbc02d;
+$genero-color: #7e57c2;
+$recinto-color: #00838f;
+
+
+.eventos-list__title {
+	color: $primary-color;
+	text-align: center;
+	margin-bottom: 2rem;
+	letter-spacing: 1px;
+}
+
+
+.eventos-list {
+	list-style: none;
+	padding: 0;
+	margin: 0 auto;
+	max-width: 700px;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+
+
+.eventos-list__item {
+	background: $card-bg;
+	border-radius: $border-radius;
+	box-shadow: $card-shadow;
+	padding: 1.5rem 2rem;
+	transition: box-shadow $transition, transform $transition;
+	position: relative;
+	border-left: 6px solid $primary-color;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	font-size: 1.05rem;
+	line-height: 1.7;
+	color: #222;
+	&:hover {
+		box-shadow: 0 8px 32px rgba(79,140,255,0.15);
+		transform: translateY(-4px) scale(1.02);
+		border-left-color: $accent-color;
+	}
+}
+
+.eventos-list__nombre {
+	color: $primary-color;
+	font-size: 1.5rem;
+	letter-spacing: 0.5px;
+	text-align: center;
+	display: block;
+	margin-bottom: 0.7rem;
+}
+
+.eventos-list__descripcion {
+	width: 100%;
+	text-align: left;
+	margin-bottom: 0.3rem;
+}
+
+.eventos-list__detail {
+	width: 100%;
+	text-align: left;
+	margin-bottom: 0.3rem;
+}
+
+.eventos-list__label {
+	font-weight: bold;
+	margin-right: 0.2em;
+}
+
+
+
+
+
+@media (max-width: 600px) {
+	.eventos-list {
+		padding: 0 0.5rem;
+	}
+	.eventos-list__item {
+		padding: 1rem 1rem;
+		font-size: 0.98rem;
+		align-items: stretch;
+	}
+	.eventos-list__nombre {
+		font-size: 1.1rem;
+	}
+}

@@ -1,14 +1,25 @@
-<h2>Lista de Eventos</h2>
-<ul>
-  @for (evento of eventos; track evento.id) {
-    <li>
-      <strong>{{ evento.nombre }}</strong><br>
-      {{ evento.descripcion }}<br>
-      Fecha: {{ evento.fechaEvento }} - Hora: {{ evento.horaEvento }}<br>
-      Precio: {{ evento.precioMinimo }}€ - {{ evento.precioMaximo }}€<br>
-      Localidad: {{ evento.localidad }}<br>
-      Género: {{ evento.genero }}<br>
-      Recinto: {{ evento.nombreRecinto }}
+<h2 class="eventos-list__title">Lista de Eventos</h2>
+<ul class="eventos-list">
+  @for (evento of eventos(); track evento.id) {
+    <li class="eventos-list__item">
+      <span class="eventos-list__nombre">{{ evento.nombre }}</span>
+      <div class="eventos-list__descripcion">{{ evento.descripcion }}</div>
+      <div class="eventos-list__detail">
+        <span class="eventos-list__label">Fecha:</span> {{ evento.fechaEvento }}
+        - <span class="eventos-list__label">Hora:</span> {{ evento.horaEvento }}
+      </div>
+      <div class="eventos-list__detail">
+        <span class="eventos-list__label">Precio:</span> {{ evento.precioMinimo }}€ - {{ evento.precioMaximo }}€
+      </div>
+      <div class="eventos-list__detail">
+        <span class="eventos-list__label">Localidad:</span> {{ evento.localidad }}
+      </div>
+      <div class="eventos-list__detail">
+        <span class="eventos-list__label">Género:</span> {{ evento.genero }}
+      </div>
+      <div class="eventos-list__detail">
+        <span class="eventos-list__label">Recinto:</span> {{ evento.nombreRecinto }}
+      </div>
     </li>
   }
 </ul>
