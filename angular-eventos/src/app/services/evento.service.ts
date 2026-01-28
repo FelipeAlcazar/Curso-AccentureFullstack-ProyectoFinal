@@ -10,7 +10,8 @@ import { Observable } from 'rxjs';
 export class EventoService {
   constructor(private http: HttpClient) {}
 
-  private eventsUrl = 'http://localhost:7777/eventos';
+  //Gateway Port being used, be sure to start it
+  private eventsUrl = 'http://localhost:8081/eventos';
 
     getEvents(): Observable<Evento[]> {
     return this.http.get<Evento[]>(this.eventsUrl);

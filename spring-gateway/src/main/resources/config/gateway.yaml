@@ -3,13 +3,15 @@ server:
 
 spring:
   cloud: 
-   gateway: 
-    routes:
-      - id: evento
-        uri: lb://eventos/
-        predicates:
-          - Path=/eventos/**
-      - id: compras
-        uri: lb://compras/
-        predicates:
-          - Path=/compras/**      
+    gateway: 
+      server:
+        webflux:
+          routes:
+            - id: evento
+              uri: lb://evento/
+              predicates:
+                - Path=/eventos/**
+            - id: compras
+              uri: lb://compras/
+              predicates:
+                - Path=/compras/**
