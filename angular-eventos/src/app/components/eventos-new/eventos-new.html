@@ -1,0 +1,46 @@
+<div class="event-form-container">
+	<h2>Crear Nuevo Evento</h2>
+	<form #eventoForm="ngForm" (ngSubmit)="onSubmit()" autocomplete="off">
+		<div class="form-group">
+			<label for="nombre">Nombre</label>
+			<input id="nombre" name="nombre" [(ngModel)]="evento.nombre" required />
+		</div>
+		<div class="form-group">
+			<label for="descripcion">Descripción</label>
+			<textarea id="descripcion" name="descripcion" [(ngModel)]="evento.descripcion" required></textarea>
+		</div>
+		<div class="form-row">
+			<div class="form-group">
+				<label for="fechaEvento">Fecha</label>
+				<input id="fechaEvento" name="fechaEvento" type="date" [(ngModel)]="evento.fechaEvento" required />
+			</div>
+			<div class="form-group">
+				<label for="horaEvento">Hora</label>
+				<input id="horaEvento" name="horaEvento" type="time" [(ngModel)]="evento.horaEvento" required />
+			</div>
+		</div>
+		<div class="form-row">
+			<div class="form-group">
+				<label for="precioMinimo">Precio Mínimo</label>
+				<input id="precioMinimo" name="precioMinimo" type="number" min="0" [(ngModel)]="evento.precioMinimo" required />
+			</div>
+			<div class="form-group">
+				<label for="precioMaximo">Precio Máximo</label>
+				<input id="precioMaximo" name="precioMaximo" type="number" min="0" [(ngModel)]="evento.precioMaximo" required />
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="localidad">Localidad</label>
+			<input id="localidad" name="localidad" [(ngModel)]="evento.localidad" required />
+		</div>
+		<div class="form-group">
+			<label for="genero">Género</label>
+			<input id="genero" name="genero" [(ngModel)]="evento.genero" required />
+		</div>
+		<div class="form-group">
+			<label for="nombreRecinto">Nombre del Recinto</label>
+			<input id="nombreRecinto" name="nombreRecinto" [(ngModel)]="evento.nombreRecinto" required />
+		</div>
+		<button type="submit" [disabled]="eventoForm.invalid">Crear Evento</button>
+	</form>
+</div>

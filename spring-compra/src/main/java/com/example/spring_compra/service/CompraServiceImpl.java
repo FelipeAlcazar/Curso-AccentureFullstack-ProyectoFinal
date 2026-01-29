@@ -5,19 +5,19 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.spring_compra.dto.PasarelaPagoDto;
-import com.example.spring_compra.response.PasarelaPagoResponse;
 import com.example.spring_compra.feignClients.EventoFeignClient;
+import com.example.spring_compra.feignClients.PasarelaFeignClient;
 import com.example.spring_compra.model.Compra;
 import com.example.spring_compra.model.Tarjeta;
 import com.example.spring_compra.repository.CompraRepository;
 import com.example.spring_compra.repository.TarjetaRepository;
 import com.example.spring_compra.response.CompraEventoResponse;
-import com.example.spring_compra.feignClients.PasarelaFeignClient;
-import org.springframework.http.HttpStatus;
+import com.example.spring_compra.response.PasarelaPagoResponse;
 
 @Service
 public class CompraServiceImpl implements CompraService {
@@ -91,20 +91,12 @@ public class CompraServiceImpl implements CompraService {
     @Override
     public List<Compra> getAllCompras() {
         List<Compra> compras = compraRepository.findAll();
-        
-        return compras.stream()
-            .map(compra -> {
-                if (compra.getEventoId() != null) {
-                    try {
-                        CompraEventoResponse eventoDetails = eventoFeignClient.getEvento(compra.getEventoId());
-                        compra.setEvento(eventoDetails);
-                    } catch (Exception e) {
-                        System.err.println("Error fetching evento " + compra.getEventoId() + ": " + e.getMessage());
-                    }
-                }
-                return compra;
-            })
-            .collect(Collectors.toList());
+        for (Compra compra : compras) {
+            if (compra.getEventoId() != null) {
+                compra.setEvento(eventoFeignClient.getEvento(compra.getEventoId()));
+            }
+        }
+        return compras;
     }
 
     private String normalizeNombreTitular(String nombre) {

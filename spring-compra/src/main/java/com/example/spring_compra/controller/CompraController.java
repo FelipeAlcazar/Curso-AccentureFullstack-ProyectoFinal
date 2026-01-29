@@ -18,11 +18,12 @@ import com.example.spring_compra.response.CompraResponse;
 import com.example.spring_compra.response.PasarelaPagoResponse;
 import com.example.spring_compra.service.CompraService;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
+import java.util.Map;
 @RestController
 @RequestMapping("/compras")
 @Tag(name = "Compras", description = "API para gestión de compras de entradas")
@@ -37,6 +38,8 @@ public class CompraController {
         @ApiResponse(responseCode = "200", description = "Lista de compras recuperada con éxito"),
         @ApiResponse(responseCode = "204", description = "No hay compras registradas")
     })
+
+    @CircuitBreaker(name = "eventoCB", fallbackMethod = "getAllComprasFallback")
     @GetMapping
     public ResponseEntity<List<CompraResponse>> getAllCompras() {
         List<Compra> compras = compraService.getAllCompras();
@@ -73,12 +76,38 @@ public class CompraController {
     @ExceptionHandler(CompraException.class)
     public ResponseEntity<PasarelaPagoResponse> handleCompraException(CompraException ex) {
         PasarelaPagoResponse errorResponse = new PasarelaPagoResponse();
-        errorResponse.setStatus("400");
-        errorResponse.setError("CompraException");
-        errorResponse.setMessage(List.of(ex.getMessage()));
+        errorResponse.setStatus("200");
+
+        String exMsg = ex.getMessage();
+
+        // Map error codes to custom messages
+        var errorMap = Map.of(
+            "400.0003", "El número de tarjeta proporcionado no es correcto. Por favor, revisa el formato y vuelve a intentarlo.",
+            "400.0004", "El formato del CVV no es válido. Debe contener solo 3 o 4 dígitos números.",
+            "500.0001", "El sistema se encuentra inestable",
+            "400.0001", "No hay fondos suficientes en la cuenta",
+            "400.0002", "No se encuentran los datos del cliente"
+        );
+
+        String customMessage = errorMap.entrySet().stream()
+            .filter(entry -> exMsg != null && exMsg.contains(entry.getKey()))
+            .map(Map.Entry::getValue)
+            .findFirst()
+            .orElse(exMsg);
+
+        String errorCode = errorMap.keySet().stream()
+            .filter(code -> exMsg != null && exMsg.contains(code))
+            .findFirst()
+            .orElse(null);
+        errorResponse.setError((errorCode != null ? errorCode : "CompraException"));
+        errorResponse.setMessage(List.of(customMessage));
         errorResponse.setInfo(ex.getInfo());
         errorResponse.setInfoadicional(ex.getInfoAdicional());
         errorResponse.setTimestamp(java.time.LocalDateTime.now().toString());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(errorResponse);
+    }
+
+    public ResponseEntity<List<CompraResponse>> getAllComprasFallback(Throwable t) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
     }
 }

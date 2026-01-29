@@ -1,3 +1,8 @@
+<div class="eventos-list__add-btn-container">
+  <button class="eventos-list__add-btn" (click)="goToNewEvento()">
+    <span class="eventos-list__add-icon">＋</span> Crear Nuevo Evento
+  </button>
+</div>
 <h2 class="eventos-list__title">Lista de Eventos</h2>
 <ul class="eventos-list">
   @for (evento of eventos(); track evento.id) {
