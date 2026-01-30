@@ -25,6 +25,10 @@
       <div class="eventos-list__detail">
         <span class="eventos-list__label">Recinto:</span> {{ evento.nombreRecinto }}
       </div>
+      <div class="eventos-list__actions">
+        <button class="eventos-list__edit-btn" (click)="goToEditEvento(evento.id)">Editar</button>
+        <button class="eventos-list__delete-btn" (click)="deleteEvento(evento.id)">Eliminar</button>
+      </div>
     </li>
   }
 </ul>

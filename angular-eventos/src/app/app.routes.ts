@@ -5,5 +5,6 @@ import { EventosNew } from './components/eventos-new/eventos-new';
 export const routes: Routes = [
     { path: '', redirectTo: 'eventos', pathMatch: 'full' },
     { path: 'eventos', component: EventosList },
-    { path: 'eventos/nuevo', component: EventosNew }
+    { path: 'eventos/nuevo', component: EventosNew },
+    { path: 'eventos/editar/:id', component: EventosNew }
 ];

@@ -26,5 +26,16 @@ export class EventosList implements OnInit {
   goToNewEvento() {
     this.router.navigate(['/eventos/nuevo']);
   }
-}
+  
+  goToEditEvento(id: number) {
+    this.router.navigate(['/eventos/editar', id]);
+  }
 
+  deleteEvento(id: number) {
+    if (confirm('¿Seguro que quieres eliminar este evento?')) {
+      this.eventoService.deleteEvent(id).subscribe(() => {
+        this.eventos.set(this.eventos().filter(e => e.id !== id));
+      });
+    }
+  }
+}
